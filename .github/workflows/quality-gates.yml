@@ -1,0 +1,37 @@
+name: Quality Gates
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  review-and-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install madge (best effort)
+        run: npm i -g madge || true
+
+      - name: Generate file hashes
+        run: bash scripts/analysis/generate_file_hashes.sh . artifacts
+
+      - name: Run static analysis (best effort)
+        run: bash scripts/analysis/run_static_analysis.sh . artifacts/static-analysis
+
+      - name: Generate dependency graph (best effort)
+        run: bash scripts/analysis/generate_dependency_graph.sh . artifacts/dependency-graph src/index.ts
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-artifacts
+          path: artifacts/

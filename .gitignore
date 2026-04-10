@@ -1,0 +1,6 @@
+artifacts/
+node_modules/
+coverage/
+dist/
+*.log
+hs_err_pid*.log
